@@ -1,0 +1,188 @@
+<div ng-controller="validationDocumentaireListeController">
+
+    <style>
+        .row-destinataires {
+            position:relative;
+            cursor:pointer;
+        }
+
+        .row-destinataires:hover {
+            cursor:pointer;
+        }
+
+        .popover-destinataires {
+            position: absolute;
+            list-style-type: none;
+            background-color: #333;
+            color:white;
+            border-radius: 5px;
+            padding-right:20px;
+            opacity: 0.9
+        }
+    </style>
+
+    <!-- BLOC DE RECHERCHE -->
+    <div class="collapse in" id="searchToolbar">
+        <form method="GET" class="form-vertical"> 
+            <div class="panel panel-flat padding-bottom10 border-top-info">
+                <div class="panel-heading">
+                    <h5 class="panel-title">Recherche</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-2">
+                        <div class="form-group form-group-xs">
+                            <input type="text" name="keywords" class="form-control" placeholder="Mots clés" value="" ng-model="filtres.description">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-group-xs">
+                            <input ng-disabled="true" type="text" name="destinataire" class="form-control" placeholder="Destinataire" value="" ng-model="filtres.destinataire">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-group-xs">
+                            <input ng-disabled="true" type="text" name="id_utilisateur" class="form-control" placeholder="Emetteur" value="" ng-model="filtres.id_utilisateur">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group form-group-xs">
+                            <input ng-disabled="true" type="text" name="date_cloture" class="form-control" placeholder="Date" ng-model="date_cloture">
+                        </div>
+                    </div>                    
+                    <div class="col-md-2">
+                        <div class="form-group form-group-xs">
+                            <select id="etat" name="etat" class="form-control input-xs" ng-model="filtres.state_id">
+                            	<option value="">Etat</option>
+                                <option value="{{etat.id}}" ng-repeat="etat in etats">{{etat.libelle}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2 pull-right">
+                        <div class="form-group form-group-xs pull-right">
+                            <button ng-disabled="{{loading}}" type="submit" class="btn btn-primary" ng-click="submitSearch()">
+                                Filtrer 
+                                <i class="icon-arrow-right14 position-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- //BLOC DE RECHERCHE -->
+
+        <!-- Afficher si il n'y aucun résultat -->
+        <div class="alert alert-danger no-border" ng-if="!validationDocumentaires" >
+            <p>
+                Aucun résultat.
+            </p>
+        </div>
+
+        <div ng-show="validationDocumentaires">
+
+            <div class="panel panel-flat widget widget-table">
+
+                <div class="panel-heading">
+
+                    <div class="dataTables_info">
+                      {{numberOfResults}} résultats
+                  </div>
+
+                  <div class="pull-right margin-ss">
+                    <select 
+                    ng-change="changeResultsPerPage()"
+                    ng-model="resultsPerPageOptionsSelected" 
+                    ng-options="option as option.label for option in resultsPerPageOptions" 
+                    class="form-control nb_items_page">
+
+                </select>
+            </div>
+
+            <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
+                <li ng-repeat="page in pages track by $index">
+                    <a href="" ng-click="setCurrentPage($index + 1)" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+                </li>
+            </div>
+
+        </div>
+        
+        <table class="table datatable-responsive table-condensed table-xxs table-striped">
+            <thead>
+                <tr>
+                    <th>Ticket</th>
+                    <th>Fichiers</th>
+                    <th>Libellé</th>
+                    <th>Emis par</th>
+                    <th>Date d'émission</th>
+                    <th>Date limite</th>
+                    <th>Destinataire(s)</th>
+                    <th>Etat</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="validationDocumentaire in validationDocumentaires" ng-init="showDestinataires = [];"> 
+                    <td> <a href="/fr/views/approval.html?id={{validationDocumentaire.id}}">{{validationDocumentaire.ticket}} </a>
+                        <span ng-show="validationDocumentaire.prioriteId==1" class="label label-danger">Priorité haute</span>
+                    </td>
+                    <td> 
+                        <ul>
+                            <li ng-repeat="file in validationDocumentaire.files">{{file}}</li>
+                        </ul>
+                    </td>
+                    <td> {{validationDocumentaire.libelle}} </td>
+                    <td> {{validationDocumentaire.emetteur}} </td>
+                    <td> {{validationDocumentaire.date_creation}} </td>
+                    <td> {{validationDocumentaire.date_cloture}} </td>
+                    <td 
+                    class="row-destinaires" 
+                    ng-init="showDestinataires[validationDocumentaire.id] = false" 
+                    ng-mouseenter="showDestinataires[validationDocumentaire.id] = true"
+                    ng-mouseleave="showDestinataires[validationDocumentaire.id] = false"> 
+
+                        <span 
+                        ng-show="validationDocumentaire.destinataires" 
+                        class="glyphicon glyphicon-user">
+                        </span>
+
+                        <ul class="popover-destinataires" ng-show="showDestinataires[validationDocumentaire.id]">
+                            <li ng-repeat="destinataire in validationDocumentaire.destinataires">{{destinataire.prenom}} {{destinataire.nom}}</li>
+                        </ul>
+
+                    </td>
+                    <td> <span class="bg-{{validationDocumentaire.stateClass}} text-highlight">{{validationDocumentaire.stateLibelle}}</span> </td>
+                        <td class="text-center">
+                            <ul class="icons-list">
+                                <li class="dropdown">
+                                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                                        <i class="icon-menu9"></i>
+                                    </a>
+
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li><a href="/fr/views/approval.html?id={{validationDocumentaire.id}}"><i class="icon-eye"></i> Voir</a></li>
+                                        <li><a href="/ws/approvals.download.html?id={{validationDocumentaire.id}}"><i class="icon-download"></i> Télécharger</a></li>
+                                        <!--
+                                        <li><a href=""><i class="icon-thumbs-up2"></i> Valider</a></li>
+                                        <li><a href=""><i class="icon-thumbs-down2"></i> Refuser</a></li>
+                                        <li><a href=""><i class="icon-pencil7"></i> Demander des modifications</a></li>
+                                        -->
+                                    </ul>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="datatable-footer widget-footer">
+
+                <div class="dataTables_paginate paging_simple_numbers pagination">
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

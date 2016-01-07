@@ -1,0 +1,77 @@
+<!--
+Inclus par le fichier validationDocumentaireForm.html
+-->
+<div class="row">
+    <div class="col-md-12">
+
+    	<div class="panel panel-flat">
+            <div class="panel-heading">
+                <h4 class="panel-title"><i class="icon-stack position-left"></i> Caractéristiques du ou des fichiers émis</h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-condensed table-xxs">
+                    <tbody>
+                        <tr>
+                            <td class="col-xs-3">Fichier(s)</td>
+                            <td>
+                                <span ng-repeat="file in files">{{file.name}}, </span>
+                            </td>
+                        </tr>
+                        <tr> <!-- Ajout le 23/12/2015 par Charlie -->
+                            <td>Libellé du dépôt</td>
+                            <td>{{validationDocumentaire.libelle}}</td>
+                        </tr>
+                        <tr>
+                            <td>Emis par</td>
+                            <td>{{currentUser.prenom}} {{currentUser.nom}}</td>
+                        </tr>
+                        <tr>
+                            <td>Créé le</td>
+                            <td>{{getDatetime | date:'dd/MM/yyyy'}}</td>
+                        </tr>
+                        <tr>
+                            <td>Date de réponse souhaitée</td>
+                            <td>{{validationDocumentaire.date_cloture | date:'dd/MM/yyyy'}}</td>
+                        </tr>
+                        <tr>
+                            <td>Priorité</td>
+                            <td>{{prioriteOptionSelected.libelle}}</td>
+                        </tr>
+                        <tr>
+                            <td>Description</td>
+                            <td>{{validationDocumentaire.description}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+  
+        <!-- Utilisateurs sélectionnés -->
+        <div class="panel panel-flat" ng-init="selectedUsers=getAllSelectedUsers()">
+
+            <div class="panel-heading">
+                <h5 class="panel-title">
+                    <i class="icon-users position-left"></i>
+                    {{getAllSelectedUsers().length}} destinataires                            </h5>
+                </div>
+                <div class="panel-body">
+                   <span ng-repeat="user in getAllSelectedUsers()">
+                     <span class="name">{{ user.name }}</span>
+                     <span ng-show="user.valideur" class="text-muted">(valideur)</span>
+                     <span ng-hide="$last" class="comma">,</span>
+                   </span>
+                    </div>
+        
+        
+        
+        
+        </div>
+
+		<div class="progress">
+			<div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width:{{progress}}%">
+         	{{progress}}% 
+  			</div>
+		</div>
+
+	</div>
+</div>

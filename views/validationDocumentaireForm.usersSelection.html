@@ -1,0 +1,46 @@
+<!--
+Inclus par le fichier validationDocumentaireForm.html
+-->
+<div class="validation-documentaire-users-selection">
+
+	<label class="validation-error-label" ng-show="uploadForm.$submitted && getSelectedUserByGroupId('entites').length == 0 && getSelectedUserByGroupId('services').length == 0">Aucun utilisateur sélectionné</label>
+	<ul class="nav nav-tabs nav-tabs-highlight">
+  		<li ng-repeat="(groupId, groupDatas) in users" ng-class="{active: currentTab == groupId}" >
+    		<a ng-click="setCurrentTab(groupId)" href="">
+      			<span ng-class="{'bg-slate': !getSelectedUserByGroupId(groupId).length}" class="badge badge-success  position-left"> 
+        			{{getSelectedUserByGroupId(groupId).length}} 
+      			</span>
+      			{{groupDatas.name}}
+    		</a>
+  		</li>
+	</ul>
+
+	<div class="tab-content">
+
+  		<div ng-repeat="(groupId, groupDatas) in users" class="tab-pane" ng-show="currentTab == groupId" ng-class="{active: currentTab == groupId}">
+
+			<table ng-init="toggle = []" class="table table-striped table-condensed table-xxs" ng-repeat="(subGroupId, subGroup) in groupDatas.groups">
+    			<thead>
+      				<tr>
+        				<th colspan="2" ng-init="toggle[subGroupId] = false">
+          					<input type="checkbox" ng-click="selectAll(subGroup)"/><a ng-click="toggle[subGroupId] = !toggle[subGroupId]"> {{subGroup.name}} </a>
+        				</th>
+      				</tr>
+    			</thead>
+    			<tbody>
+      				<tr ng-show="toggle[subGroupId]" ng-repeat="user in subGroup.users">
+        				<td>
+          					<input ng-change="ngChangeSelected(user)"  ng-model="user.selected" type="checkbox" /> {{user.name}}
+        				</td>
+        				<td>
+          					<input ng-change="ngChangeValideur(user)" ng-model="user.valideur" type="checkbox" /> Valideur
+        				</td>
+      				</tr>
+    			</tbody>
+			</table>
+            
+		</div>
+	
+    </div>
+
+</div>

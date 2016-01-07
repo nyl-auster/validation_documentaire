@@ -1,0 +1,113 @@
+<!--
+Affiche notamment le champ d'upload en drag and drop
+
+Inclus par le fichier validationDocumentaireForm.html.
+Affiche le formulaire d'upload de fichiers et les champs
+libellé, description, priorité, date de clôture.
+-->
+
+<div class="form-group">
+    <div 
+    ng-model="files"
+    class="dropzone dz-clickable"
+    ngf-drop="addFileToQueue(files)"
+    ngf-select="addFileToQueue(files)"
+    ngf-keep="true"
+    ngf-drag-over-class="'dragover'"
+    ngf-multiple="true"
+    ngf-pattern="'*.*'">
+    <div class="dz-default dz-message">
+        <span>Déposez vos fichiers ici <span>ou cliquez ici</span></span>
+    </div>
+	</div>
+
+	<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+	<label class="validation-error-label" ng-show="uploadForm.$submitted && files.length == 0">Aucun fichier uploadé</label>
+
+	<br>
+    <br>
+
+	<div ng-show="files.length" class="panel panel-flat">
+
+        <table class="table table-xxs table-condensed">
+            <tbody>
+                <tr ng-repeat="file in files track by $index">
+                    <td>
+                        {{file.name}}
+                    </td>
+                    <td class="col-xs-1">
+                        <a class="glyphicon glyphicon-trash" ng-click="removeFileFromQueue($index)"></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    
+        <ul ng-if="invalidFiles" class="alert alert-danger">
+            <li class="sel-file" ng-repeat="f in invalidFiles">
+                <div>Invalid File: {{f.$error}} {{f.$errorParam}}, {{f.name}} - size: {{f.size}}B - type:
+                    {{f.type}}
+                </div>
+            </li>
+        </ul>
+    
+	</div>
+
+</div>
+
+<div class="form-group">
+    <input type="text" ng-model="$parent.validationDocumentaire.libelle" name="libelle" placeholder="Nom du dépôt" class="form-control" required>
+    <label class="validation-error-label" ng-show="uploadForm.$submitted && uploadForm.libelle.$error.required">Champ obligatoire</label>
+</div>
+
+<div class="form-group">
+    <textarea ng-model="$parent.validationDocumentaire.description" name="description" placeholder="Description" class="form-control" rows="5" required></textarea>
+    <label class="validation-error-label" ng-show="uploadForm.$submitted && uploadForm.description.$error.required">Champ obligatoire</label>
+</div>
+
+    <!-- note : $parent.date au lieu de date pour ng-model pour lier au scope parent et pas
+    à celui du datePicker -->
+    <div class="form-group form-group-xs" ng-controller="validationDocumentaireFormDatePickerController">
+        <label class="col-lg-5 control-label">Date de réponse souhaitée:</label>
+        <div class="col-lg-7"> 
+        	<div class="input-group">   	
+                <input  type="text"
+                name="date_cloture"
+                placeholder="Date de réponse souhaitée (date limite)"
+                class="form-control"
+                uib-datepicker-popup="dd/MM/yyyy"
+                ng-model="$parent.validationDocumentaire.date_cloture"
+                is-open="status.opened"
+                min-date="minDate" max-date="maxDate"
+                datepicker-options="dateOptions"
+                date-disabled="disabled(date, mode)"
+                ng-required="true"
+                close-text="Fermer"
+                />
+                <span class="input-group-btn">
+                   <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+               </span>
+           </div>
+       </div>
+   	</div>
+	<label class="validation-error-label" ng-show="uploadForm.$submitted && uploadForm.date_cloture.$error.required">Champ obligatoire</label>
+
+	<div class="form-group form-group-xs">
+    <label class="col-lg-2 control-label">Priorité :</label>
+    <div class="col-lg-10">    	
+        <div class="row">
+            <div class="col-md-6">
+                <div class="dropdown">
+                    <!--Priorité: &nbsp; -->
+                    <a href="" class="label bg-{{$parent.prioriteOptionSelected.couleur}} dropdown-toggle" data-toggle="dropdown"> {{$parent.prioriteOptionSelected.libelle}} <span class="caret"></span></a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li ng-repeat="option in $parent.prioritesOptions">
+                            <a href="" ng-click="setPrioriteOptionSelected(option)">
+                                <span class="status-mark position-left bg-{{option.couleur}}"></span> {{option.libelle}} 
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

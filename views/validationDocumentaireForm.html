@@ -1,0 +1,127 @@
+<!--
+Formulaire de création de demande de validation documentaire avec
+upload de fichier et sélection des utilisation.
+-->
+
+<div class="container" ng-controller="validationDocumentaireFormController" ng-cloak>
+
+  <form name="uploadForm" class="form-horizontal" novalidate>
+
+        <!--
+           ETAPE 1 du formulaire de demande : upload fichiers
+           et sélection des utilisateurs
+         -->
+
+         <div class="pane" ng-show="currentStep==1">
+
+          <h1 class="panel-title"><i class="icon-file-upload position-left">
+          </i> Faire une demande</h1>
+          <br />
+
+          <div class="row">
+            <div class="col-sm-6">
+              <!-- inclusion du formulaire d'upload -->
+              <ng-include src="validationDocumentaireSettings.appPath + '/views/validationDocumentaireForm.upload.html'"></ng-include>
+            </div>
+
+            <div class="col-sm-6">
+              <!-- inclusion des checkboxes permettant de sélectionner les utilisateurs -->
+              <ng-include src="validationDocumentaireSettings.appPath + '/views/validationDocumentaireForm.usersSelection.html'"></ng-include>
+            </div>
+          </div>
+
+        </div>
+
+        <!--
+           ETAPE 2 du formulaire de demande : récapitulatif
+           de la demande avant envoi.
+         -->
+
+         <div class="pane" ng-show="currentStep == 2">
+
+          <h1 class="panel-title"><i class="icon-file-upload position-left"></i> Faire une demande</h1>
+          <br />
+
+          <div class="row">
+            <div class="col-sm-12">
+              <ng-include src="validationDocumentaireSettings.appPath + '/views/validationDocumentaireForm.recapitulatif.html'"></ng-include>
+            </div>
+          </div>
+
+        </div>
+
+        <!--
+          ETAPE 3 : message de confirmation du déroulement
+          de la création de la demande.
+        -->
+        <div class="pane" ng-show="currentStep == 3">
+
+          <div class="row">
+            <div class="col-sm-12">
+              <h3>Confirmation de création</h3>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm-12">
+              Merci, votre demande a bien été enregistrée.
+            </div>
+          </div>
+
+        </div>
+
+        <!--
+          BOUTONS D'ACTIONS (passer d'une page à l'autre)
+          Visibles sur toutes les pages du formulaire.
+        -->
+        <hr>
+
+        <div class="row">
+          <div class="col-md-12">
+
+            <input type="submit"
+            value="ANNULER"
+            class="btn btn-danger btn-sm"
+            ng-click="closeThisDialog()"
+            >
+
+            <!-- si le formulaire est valide et que des fichiers ont été sélectionné, se rendre en page 2 -->
+            <input type="submit"
+            value="ETAPE SUIVANTE"
+            ng-show="currentStep == 1"
+            class="btn btn-primary btn-sm pull-right"
+            ng-click="uploadForm.$valid && files.length > 0 && goToStep(2)"
+            >
+            <!--ng-disabled="uploadForm.$invalid || files.length == 0"-->
+
+            <button
+            ng-show="currentStep == 2"
+            class="btn btn-slate btn-sm"
+            ng-click="goToStep(1)"
+            >
+            RETOUR
+          	</button>
+
+          <button
+          ng-show="currentStep == 2"
+          class="btn btn-primary btn-sm pull-right"
+          ng-click="enregistrerDemande()"
+          ng-disabled="progress > 0"
+          >
+          <span ng-show="!progress">EMETTRE</span>
+          <span ng-show="progress > 0">Upload en cours {{progress}}%</span>
+        </button>
+
+        <button
+        ng-show="currentStep == 3"
+        class="btn btn-primary btn-sm pull-right"
+        ng-click="closeThisDialog()"
+        >
+        OK
+      </button>
+    </div>
+  </div>
+
+</form>
+
+
+</div> <!-- fin container global -->
