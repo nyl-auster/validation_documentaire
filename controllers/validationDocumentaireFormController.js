@@ -6,7 +6,7 @@
 
   "use strict";
 
-  angular.module('validationDocumentaire').controller("validationDocumentaireFormController", ['validationDocumentaireService', 'userService', '$rootScope', 'validationDocumentaireSettings', '$scope', 'Upload', '$timeout', '$http', function(validationDocumentaireService, userService, $rootScope, validationDocumentaireSettings, $scope, Upload, $timeout, $http) {
+  angular.module('validationDocumentaire').controller("validationDocumentaireFormController", ['validationDocumentaireService', 'userService', '$rootScope', 'validationDocumentaireSettings', '$scope', 'Upload', '$timeout', '$http', '$q'function(validationDocumentaireService, userService, $rootScope, validationDocumentaireSettings, $scope, Upload, $timeout, $http, $q) {
 
     // Le formulaire est composé de plusieurs "pages", par défaut mettre sur la première page.
     $scope.currentStep = 1;
@@ -71,7 +71,7 @@
      * récupérer tous les utilisateurs cochés depuis le formulaire dans les onglets entités, service et groupes de travail.
      * @returns {Array}
      */
-     
+
     $scope.getAllSelectedUsers = function() {
       var selectedUsers = [];
       // juste un hack pour ne pas enregistrer deux fois le même utilisateur
@@ -91,10 +91,9 @@
 
         });
       });
-      console.log(selectedUsers);
       return selectedUsers;
     };
-    
+
 
     $scope.setPrioriteOptionSelected = function(option) {
       $scope.prioriteOptionSelected = option;
@@ -165,6 +164,17 @@
         .then(function() {
 
           var selectedUsers = $scope.getAllSelectedUsers();
+
+          // on "cascade" toutes les promesses d'insertion pour en faire une promesse globale
+          // avec $q.all()
+          return $q.all(selectedUsers.map(function(user) {
+            var datas = {};
+            datas.id_validation_documentaire = validationDocumentaireId;
+            datas.id_utilisateur = user.id
+            datas.valideur = user.valideur == true ? 1 : 0;
+            return validationDocumentaireService.insertDestinataire(datas);
+          }));
+          /*
           angular.forEach(selectedUsers, function(user) {
             var datas = {};
             datas.id_validation_documentaire = validationDocumentaireId;
@@ -172,6 +182,7 @@
             datas.valideur = user.valideur == true ? 1 : 0;
             validationDocumentaireService.insertDestinataire(datas);
           });
+           */
 
         })
         // Ajout le 23/12/2015
@@ -181,12 +192,13 @@
           var datas = {};
           datas.id = validationDocumentaireId;
           datas.event = 'create';
-          validationDocumentaireService.sendEmailToDestinaires(datas);
+          return validationDocumentaireService.sendEmailToDestinaires(datas);
 
         })
 
       // quand l'upload est terminé :
       .then(
+
         // en cas de succès
         function(response) {
           // rediriger vers la page de confirmation de l'upload
