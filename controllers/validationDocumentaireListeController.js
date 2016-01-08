@@ -62,42 +62,42 @@
     // et de la pagination.
     function loadResults() {
 
-      // on indique qu'on commence à charger les résultats pour pouvoir afficher un
-      // loader ou désactiver le bouton submit si nécessaire
-      $scope.loading = true;
+		// on indique qu'on commence à charger les résultats pour pouvoir afficher un
+		// loader ou désactiver le bouton submit si nécessaire
+		$scope.loading = true;
 
-      // on récupère les filtres pour construire la requete sql 
-      var queryParams = $scope.filtres;
-      queryParams.from = ($scope.currentPage * $scope.resultsPerPageOptionsSelected.value) - $scope.resultsPerPageOptionsSelected.value;
-      queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
+      	// on récupère les filtres pour construire la requete sql 
+      	var queryParams = $scope.filtres;
+      	queryParams.from = ($scope.currentPage * $scope.resultsPerPageOptionsSelected.value) - $scope.resultsPerPageOptionsSelected.value;
+      	queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
 
-      // on demande au webservice de nous renvoyer le résultat correspondant à ces filtres.
-      validationDocumentaireService.getAll(queryParams).then(function(validationDocumentaires) {
-        // mise à jour de la liste avec les résulats.
-        $scope.validationDocumentaires = validationDocumentaires;
+      	// on demande au webservice de nous renvoyer le résultat correspondant à ces filtres.
+      	validationDocumentaireService.getAll(queryParams).then(function(validationDocumentaires) {
+        	// mise à jour de la liste avec les résulats.
+        	$scope.validationDocumentaires = validationDocumentaires;
 
-        // on va chercher la liste des destinataires. 
-        $q.all(validationDocumentaires.map(function(validationDocumentaire){
-          return validationDocumentaireService.getDestinataires(validationDocumentaire.id);
-        }))
-        .then(function(destinataires) {
-          angular.forEach(validationDocumentaires, function(validationDocumentaire, key) {
-            validationDocumentaires[key].destinataires = destinataires[key];
-          });
-          $scope.validationDocumentaires = validationDocumentaires;
-        });
+			// on va chercher la liste des destinataires. 
+			$q.all(validationDocumentaires.map(function(validationDocumentaire){
+				return validationDocumentaireService.getDestinataires(validationDocumentaire.id);
+			}))
+			.then(function(destinataires) {
+				angular.forEach(validationDocumentaires, function(validationDocumentaire, key) {
+					validationDocumentaires[key].destinataires = destinataires[key];
+				});
+				$scope.validationDocumentaires = validationDocumentaires;
+			});
 
-      });
+		});
 
-      // compter le nombre de résultat pour a requête demandée.
-      validationDocumentaireService.countResults($scope.filtres).then(function(number) {
-        $scope.numberOfResults = number;
-        $scope.numberOfPages = Math.ceil($scope.numberOfResults / $scope.resultsPerPageOptionsSelected.value);
-        $scope.pages = new Array($scope.numberOfPages);
-      });
+      	// compter le nombre de résultat pour a requête demandée.
+      	validationDocumentaireService.countResults($scope.filtres).then(function(number) {
+        	$scope.numberOfResults = number;
+        	$scope.numberOfPages = Math.ceil($scope.numberOfResults / $scope.resultsPerPageOptionsSelected.value);
+        	$scope.pages = new Array($scope.numberOfPages);
+      	});
 
-      // on indique qu'on a fini de charger les nouveaux résultats
-      $scope.loading = false;
+      	// on indique qu'on a fini de charger les nouveaux résultats
+      	$scope.loading = false;
     }
 
   }]);

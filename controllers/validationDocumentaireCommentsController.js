@@ -18,7 +18,7 @@
       $scope.comment.id_utilisateur 	= user.id;
       $scope.comment.utilisateur_nom 	= user.nom;
       $scope.comment.utilisateur_prenom = user.prenom;
-	  console.log($scope.comment);
+	  $scope.comment.avatar 			= user.avatar;
     });
 	
     // charger les commentaires pour la premire fois
