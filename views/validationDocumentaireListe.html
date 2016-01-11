@@ -59,9 +59,10 @@
                     </div>
                     <div class="col-md-2 pull-right">
                         <div class="form-group form-group-xs pull-right">
-                            <button ng-disabled="{{loading}}" type="submit" class="btn btn-primary" ng-click="submitSearch()">
+                          <a ui-sref="validationDocumentaireListe({{filtres}})" class="btn btn-primary" ng-click="submitSearch()">
                                 Filtrer 
                                 <i class="icon-arrow-right14 position-right"></i></button>
+                              </a>
                             </div>
                         </div>
                     </div>
@@ -98,7 +99,7 @@
 
                 <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
                     <li ng-repeat="page in pages track by $index">
-                        <a href="" ng-click="setCurrentPage($index + 1)" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+                    <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
                     </li>
                 </div>
 
