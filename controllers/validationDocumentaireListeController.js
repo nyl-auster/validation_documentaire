@@ -5,13 +5,12 @@
 
   "use strict";
 
-  angular.module('validationDocumentaire').controller("validationDocumentaireListeController", ['$state', '$stateParams', '$q', '$timeout', 'validationDocumentaireService', '$scope', '$rootScope', 'validationDocumentaireSettings', function($state, $stateParams, $q, $timeout, validationDocumentaireService, $scope, $rootScope, validationDocumentaireSettings) {
+  angular.module('validationDocumentaire').controller("validationDocumentaireListeController", ['$filter', '$state', '$stateParams', '$q', '$timeout', 'validationDocumentaireService', '$scope', '$rootScope', 'validationDocumentaireSettings', function($filter, $state, $stateParams, $q, $timeout, validationDocumentaireService, $scope, $rootScope, validationDocumentaireSettings) {
 
-    // initialisation des variables utilisés dans le template.
+    // contiendra la liste des validation Documentaires
     $scope.validationDocumentaires = [];
-    $scope.filtres = {};
 
-    // options pour le nombre de résultats par page:
+    // options pour choisir le nombre de résultats par page:
     $scope.resultsPerPageOptions = [{
       value: 10,
       label: 10
@@ -21,74 +20,91 @@
     }, {
       value: 50,
       label: 50
+
     }];
-    
+
     // par défaut, on choisit la première option pour le nombre de résultats par page.
-    $scope.resultsPerPageOptionsSelected = $scope.resultsPerPageOptions[0];
+
+    var item = localStorage.getItem('validationDocumentaireListeNumberItemsPerPage');
+    if (item) {
+      item = JSON.parse(item);
+      $scope.resultsPerPageOptionsSelected = item;
+    } else {
+      $scope.resultsPerPageOptionsSelected = $scope.resultsPerPageOptions[0];
+    }
+    
 
     // on va chercher la liste des validation documentaires pour le premier affichage
-    loadResults();
+    // en utilisant les arguments en provenant de l'url / de l'état 
+    // @see appRouter.js
+    loadResults($stateParams);
 
+    // On souhaite rafraichir la liste des résultats une fois une nouvelle demande créee.
+    // 
     // On s'incrit à l'évènement d'insertion d'une nouvelle validation documentaire en base de données.
-    // Quand un nouvelle validation documentaire sera entrée, le code suivant sera exécuté :
+    // Quand un nouvelle validation documentaire sera entrée, la function sera exécutée.
     $rootScope.$on('validationDocumentaireAfterInsert', function(event, data) {
-      loadResults();
+      loadResults($stateParams);
     });
 
-    function loadResults(){
+    function loadResults(queryParams) {
 
-      var queryParams = $stateParams;
-      queryParams.from = ($stateParams.page * $scope.resultsPerPageOptionsSelected.value) - $scope.resultsPerPageOptionsSelected.value;
-      queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
+      var queryParams = typeof queryParams !== 'undefined' ? queryParams : {};
+      var queryCountParams = queryParams;
 
-      // on demande au webservice de nous renvoyer le résultat correspondant à ces filtres.
+      if (typeof queryParams.limit === 'undefined') {
+        queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
+      }
+
+      // on créer les paramètres from et limit pour la requete sql du webservice
+      queryParams.from = (queryParams.page * queryParams.limit) - queryParams.limit;
+
+      // on demande au webservice de nous renvoyer le résultat correspondant au filtres mais sans le from et le limit
       validationDocumentaireService.getAll(queryParams).then(function(validationDocumentaires) {
         // mise à jour de la liste avec les résulats.
         $scope.validationDocumentaires = validationDocumentaires;
-
-        // on va chercher la liste des destinataires. 
-        $q.all(validationDocumentaires.map(function(validationDocumentaire){
-          return validationDocumentaireService.getDestinataires(validationDocumentaire.id);
-        }))
-        .then(function(destinataires) {
-          angular.forEach(validationDocumentaires, function(validationDocumentaire, key) {
-            validationDocumentaires[key].destinataires = destinataires[key];
-          });
-          $scope.validationDocumentaires = validationDocumentaires;
-        });
-
+        // valeurs par défaut des filtres de recherches.
+        $scope.filtres = queryParams;
+        var selectedOption = $filter('filter')($scope.resultsPerPageOptions, {
+          value: queryParams.limit
+        })[0];
+        $scope.resultsPerPageOptionsSelected = selectedOption;
+        localStorage.setItem('validationDocumentaireListeNumberItemsPerPage', JSON.stringify(selectedOption, null, 2));
       });
 
       // compter le nombre de résultat pour a requête demandée.
-      validationDocumentaireService.countResults($scope.filtres).then(function(number) {
-        console.log(number);
+      validationDocumentaireService.countResults(queryCountParams).then(function(number) {
         $scope.numberOfResults = number;
-        $scope.numberOfPages = Math.ceil($scope.numberOfResults / $scope.resultsPerPageOptionsSelected.value);
+        $scope.numberOfPages = Math.ceil($scope.numberOfResults / queryParams.limit);
         $scope.pages = new Array($scope.numberOfPages);
       });
 
     }
 
-
-    // changer le nombre de résultats par page.
-    $scope.changeResultsPerPage = function() {
-      var queryParams = $scope.filtres;
-      queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
-      loadResults(queryParams);
-    };
-
-    // on appelle le webservice pour avoir la liste de tous les états de validation documentaires.
+    // on appelle le webservice pour avoir la liste de tous les états de validation documentaires,
+    // pour construire la liste déroulante des choix d'états.
     validationDocumentaireService.getStates().then(function(datas) {
       $scope.etats = datas;
     });
 
+    // appelée lorsqu'on clique sur le bouton submit du moteur de recherche 
+    // recharge ce controlleur en mettant à jour les paramètres de l'url.
     $scope.submitSearch = function() {
       var queryParams = $scope.filtres;
-      // on ramène à la première page des résultats par défaut.
       queryParams.page = 1;
-      // on reload notre controlleur avec les nouveaux paramètres de l'url.
-      // location permet de mettre à jour l'url et pas seulement la variable $stateParams.
-      $state.go('validationDocumentaireListe', queryParams, {location: true});
+      $state.go('validationDocumentaireListe', queryParams, {
+        location: "replace"
+      });
+    };
+
+    // fonction pour changer le nombre de résultats par page.
+    $scope.changeResultsPerPage = function() {
+      var queryParams = $scope.filtres;
+      queryParams.page = 1; // on ramene à la premiere page.
+      queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
+      $state.go('validationDocumentaireListe', queryParams, {
+        location: true
+      });
     };
 
   }]);

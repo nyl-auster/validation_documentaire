@@ -21,10 +21,9 @@
 
     /**
      * Insérer une nouvelle validation documentaire en base de données
-     * Renvoie le dernier id inséré en base de données
+     * Renvoie une promesse contenant le dernier id inséré en base de données
      */
     factory.insert = function(datas) {
-      //console.log(datas);
       var url = validationDocumentaireSettings.webservicesBaseUrl + 'validationDocumentaireInsert';
       return $http.post(url, datas).then(function(response) {
         return response.data.result;
