@@ -29,14 +29,22 @@
     if (item) {
       $scope.resultsPerPageOptionsSelected = JSON.parse(item);
     } else {
-      // sinon on prend la première option parmi notre liste d'options ci-dessus
-      $scope.resultsPerPageOptionsSelected = $scope.resultsPerPageOptions[0];
+      // 50 résultat par page par défaut
+      $scope.resultsPerPageOptionsSelected = $scope.resultsPerPageOptions[2];
     }
 
 
     // on va chercher la liste des validation documentaires pour le premier affichage
     // en utilisant les arguments en provenant de l'url / de l'état 
     // @see appRouter.js
+
+    // set date_cloture as a string for sql query
+    // le datePicker nus envoie pour sa part un objet date.
+
+    if ($stateParams.archived == 1) {
+      $scope.texteArchive = "dans les archives";
+    }
+
     loadResults($stateParams);
 
     // On souhaite rafraichir la liste des résultats une fois une nouvelle demande créee.
@@ -67,7 +75,6 @@
 
         // par défault les filtres de recherche ont la valeur de la recherche précédente.
         $scope.filtres = queryParams;
-        console.log(queryParams);
 
         if (typeof queryParams.date_cloture !== "undefined") {
           $scope.filtres.date_cloture = new Date(queryParams.date_cloture);
@@ -107,15 +114,15 @@
 
       // set date_cloture as a string for sql query
       // le datePicker nus envoie pour sa part un objet date.
-      console.log(queryParams.date_cloture);
       if (typeof queryParams.date_cloture !== "undefined" && queryParams.date_cloture !== null) {
         queryParams.date_cloture = $filter('date')(new Date(queryParams.date_cloture), "yyyy-MM-dd");
       }
       queryParams.page = 1;
-      console.log(queryParams.date_cloture);
 
       // on actualise notre état et les paramètres de l'url pour mettre à jour la liste.
-      $state.go('validationDocumentaireListe', queryParams, {location: "replace"});
+      $state.go('validationDocumentaireListe', queryParams, {
+        location: "replace"
+      });
 
     };
 

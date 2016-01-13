@@ -19,28 +19,19 @@
 
     // liste des demandes. Page d'accueil par défaut pour le moment
     $stateProvider.state('validationDocumentaireListe', {
-      url: '/?page&description&state_id&id_utilisateur&date_cloture&limit&destinataire&emetteur',
+      url: '/?page&description&state_id&id_utilisateur&date_cloture&limit&destinataire&emetteur&archived',
       templateUrl: validationDocumentaireSettings.appPath + "/views/validationDocumentaireListe.html",
       params:{
         page:'1'
       }
     });
 
-    // route pour afficher le formulaire demande en dehors de la opup
+    // route pour afficher le formulaire demande en dehors de la popup
     $stateProvider.state('validationDocumentaireForm', {
       url: '/form',
       templateUrl: validationDocumentaireSettings.appPath + "/views/validationDocumentaireForm.html"
     });
 
-    /**
-     * Route d'exemple, serait accessible via fr/Validation/#/hello-world
-     */
-    /*
-       $stateProvider.state('helloWorld', {
-       url: '/hello-world',
-       templateUrl: validationDocumentaireSettings.appPath + "/views/helloWorld.html"
-       });
-       */
 
   }]);
 

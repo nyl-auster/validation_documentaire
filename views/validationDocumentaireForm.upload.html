@@ -32,8 +32,9 @@ libellé, description, priorité, date de clôture.
         <table class="table table-xxs table-condensed">
             <tbody>
                 <tr ng-repeat="file in files track by $index">
-                    <td>
+                    <td  class="icon-extension-{{file.name | fileExtension}}">
                         {{file.name}}
+                        <i class="fa-file"></i>
                     </td>
                     <td class="col-xs-1">
                         <a class="glyphicon glyphicon-trash" ng-click="removeFileFromQueue($index)"></a>
