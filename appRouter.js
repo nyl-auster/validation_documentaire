@@ -19,7 +19,7 @@
 
     // liste des demandes. Page d'accueil par défaut pour le moment
     $stateProvider.state('validationDocumentaireListe', {
-      url: '/?page&description&state_id&id_utilisateur&date&limit',
+      url: '/?page&description&state_id&id_utilisateur&date_cloture&limit&destinataire&emetteur',
       templateUrl: validationDocumentaireSettings.appPath + "/views/validationDocumentaireListe.html",
       params:{
         page:'1'

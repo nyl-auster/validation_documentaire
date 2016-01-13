@@ -41,137 +41,166 @@
                     </div>
                     <div class="col-md-2">
                         <div class="form-group form-group-xs">
-                            <input type="text" name="id_utilisateur" class="form-control" placeholder="Emetteur" value="" ng-model="filtres.id_utilisateur">
+                            <input type="text" name="id_utilisateur" class="form-control" placeholder="Emetteur" value="" ng-model="filtres.emetteur">
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <div class="form-group form-group-xs">
-                            <input type="text" name="date_cloture" class="form-control" placeholder="Date" ng-model="date_cloture">
-                        </div>
-                    </div>                    
-                    <div class="col-md-2">
+
+
+                            <!-- DEBUT DATE PICKER note : $parent.date_cloture au lieu de date pour ng-model pour lier au scope parent et pas
+                            à celui du datePicker -->
+                            <div class="form-group form-group-xs" ng-controller="validationDocumentaireListeDatePickerController">
+                                <!--<label class="col-lg-5 control-label">Date de réponse souhaitée:</label>-->
+                                <div class="input-group">       
+                                    <input  type="text"
+                                    name="date_cloture"
+                                    placeholder="Date de cloture"
+                                    class="form-control"
+                                    uib-datepicker-popup="dd/MM/yyyy"
+                                    ng-model="$parent.filtres.date_cloture"
+                                    is-open="status.opened"
+                                    datepicker-options="dateOptions"
+                                    current-text="Aujourd'hui"
+                                    clear-text="Effacer"
+                                    close-text="Fermer"
+                                    />
+                                    <span class="input-group-btn">
+                                     <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                 </span>
+                             </div>
+                         </div><!-- fin date picker -->
+
+
+                     </div>                    
+                     <div class="col-md-2">
                         <div class="form-group form-group-xs">
                             <select id="etat" name="etat" class="form-control input-xs" ng-model="filtres.state_id">
-                            	<option value="">Etat</option>
-                                <option value="{{etat.id}}" ng-repeat="etat in etats">{{etat.libelle}}</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-2 pull-right">
-                        <div class="form-group form-group-xs pull-right">
-                          <a ui-sref="validationDocumentaireListe({{filtres}})" class="btn btn-primary" ng-click="submitSearch()">
-                                Filtrer 
-                                <i class="icon-arrow-right14 position-right"></i></button>
-                              </a>
-                            </div>
-                        </div>
-                    </div>
+                             <option value="">Etat</option>
+                             <option value="{{etat.id}}" ng-repeat="etat in etats">{{etat.libelle}}</option>
+                         </select>
+                     </div>
+                 </div>
+                 <div class="col-md-2 pull-right">
+                    <div class="form-group form-group-xs pull-right">
+                      <a ui-sref="validationDocumentaireListe({{filtres}})" class="btn btn-primary" ng-click="submitSearch()">
+                        Filtrer 
+                        <i class="icon-arrow-right14 position-right"></i></button>
+                    </a>
                 </div>
-            </form>
+            </div>
         </div>
-        <!-- //BLOC DE RECHERCHE -->
+    </div>
+</form>
+</div>
+<!-- //BLOC DE RECHERCHE -->
 
-        <!-- Afficher si il n'y aucun résultat -->
-        <div class="alert alert-danger no-border" ng-if="!validationDocumentaires" >
-            <p>
-                Aucun résultat.
-            </p>
-        </div>
+<!-- Afficher si il n'y aucun résultat -->
+<div class="alert alert-danger no-border" ng-if="!validationDocumentaires" >
+    <p>
+        Aucun résultat.
+    </p>
+</div>
 
-        <div ng-show="validationDocumentaires">
+<div ng-show="validationDocumentaires">
 
-            <div class="panel panel-flat widget widget-table">
+    <div class="panel panel-flat widget widget-table">
 
-                <div class="panel-heading">
+        <div class="panel-heading">
 
-                    <div class="dataTables_info">
-                      {{numberOfResults}} résultats
-                  	</div>
+            <div class="dataTables_info">
+              {{numberOfResults}} résultats
+          </div>   
 
-                  <div class="pull-right margin-ss">
-                    <select 
-                    ng-change="changeResultsPerPage()"
-                    ng-model="resultsPerPageOptionsSelected" 
-                    ng-options="option as option.label for option in resultsPerPageOptions" 
-                    class="form-control nb_items_page">
-                	</select>
-            	</div>
+          <div class="pull-right margin-ss">
+            <select 
+            ng-change="changeResultsPerPage()"
+            ng-model="resultsPerPageOptionsSelected" 
+            ng-options="option as option.label for option in resultsPerPageOptions" 
+            class="form-control nb_items_page">
+        </select>
+    </div>
 
-                <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
-                    <li ng-repeat="page in pages track by $index">
-                    <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
-                    </li>
-                </div>
+    <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
+        <li ng-repeat="page in pages track by $index">
+            <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+        </li>
+    </div>
 
-        	</div>
-        
-            <table class="table datatable-responsive table-striped table-condensed table-hover table-xxs widget-table listing">
-                <thead>
-                    <tr>
-                        <th>Priorité</th>
-                        <th>Ticket</th>
-                        <th>Date</th>
-                        <th>Libellé</th>
-                        <th>fichier(s)</th>
-                        <th>Emis par</th>                    
-                        <th>Date limite</th>
-                        <th>Destinataire(s)</th>
-                        <th>Etat</th>
-                        <th>Ouvert</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr ng-repeat="validationDocumentaire in validationDocumentaires" ng-init="showDestinataires = [];"> 
-                    	<td> <span class="label label-{{validationDocumentaire.prioriteClass}}">{{validationDocumentaire.prioriteLibelle}}</span> </td>
-                        <td> <a href="/fr/views/approval.html?id={{validationDocumentaire.id}}">{{validationDocumentaire.ticket}}</a> </td>
-                        <td> {{validationDocumentaire.date_creation}} </td>
-                        <td> {{validationDocumentaire.libelle}} </td>
-                        <td>{{validationDocumentaire.files.length}} </td>
-                        <td> {{validationDocumentaire.emetteur}} </td>
-                        <td> {{validationDocumentaire.date_cloture}} </td>
-                        <td class="row-destinaires" ng-init="showDestinataires[validationDocumentaire.id] = false" ng-mouseenter="showDestinataires[validationDocumentaire.id] = true" ng-mouseleave="showDestinataires[validationDocumentaire.id] = false">
-                            
-                            <span ng-show="validationDocumentaire.destinataires" class="badge badge-flat border-grey text-grey-600">{{validationDocumentaire.destinataires.length}}</span>
-                            <ul class="popover-destinataires" ng-show="showDestinataires[validationDocumentaire.id]">
-                                <li ng-repeat="destinataire in validationDocumentaire.destinataires">{{destinataire.prenom}} {{destinataire.nom}}</li>
-                            </ul>
-    
-                        </td>
-                        <td> <span class="label label-{{validationDocumentaire.stateClass}}">{{validationDocumentaire.stateLibelle}}</span> </td>
-                        <td> <span class="label label-flat border-{{validationDocumentaire.open==1 ? 'success' : 'danger'}} text-{{validationDocumentaire.open==1 ? 'success' : 'danger'}}-600">{{validationDocumentaire.open==1 ? 'Oui' : 'Non'}}</span> </td>
-                        <td class="text-center">
-                            <ul class="icons-list">
-                                <li class="dropdown">
-                                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
-                                        <i class="icon-menu9"></i>
-                                    </a>
+</div>
 
-                                    <ul class="dropdown-menu dropdown-menu-right">
-                                        <li><a href="/fr/views/approval.html?id={{validationDocumentaire.id}}"><i class="icon-eye"></i> Voir en détail</a></li>
-                                        <li><a href="/fr/views/approval-preview.html?id={{validationDocumentaire.id}}" class="fancybox fancybox.iframe" data-width="100%" data-height="100%"><i class="icon-eye"></i> Aperçu rapide</a></li>
-                                        <li><a href="/ws/approvals.download.html?id={{validationDocumentaire.id}}"><i class="icon-download"></i> Télécharger</a></li>
+<table class="table datatable-responsive table-striped table-condensed table-hover table-xxs widget-table listing">
+    <thead>
+        <tr>
+            <th>Priorité</th>
+            <th>Ticket</th>
+            <th>Date</th>
+            <th>Libellé</th>
+            <th>fichier(s)</th>
+            <th>Emis par</th>                    
+            <th>Date limite</th>
+            <th>Destinataire(s)</th>
+            <th>Etat</th>
+            <th>Ouvert</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="validationDocumentaire in validationDocumentaires" ng-init="showDestinataires = [];"> 
+           <td> <span class="label label-{{validationDocumentaire.prioriteClass}}">{{validationDocumentaire.prioriteLibelle}}</span> </td>
+           <td> <a href="/fr/views/approval.html?id={{validationDocumentaire.id}}">{{validationDocumentaire.ticket}}</a> </td>
+           <td> {{validationDocumentaire.date_creation}} </td>
+           <td> {{validationDocumentaire.libelle}} </td>
+           <td>{{validationDocumentaire.files.length}} </td>
+           <td> {{validationDocumentaire.emetteur}} </td>
+           <td> {{validationDocumentaire.date_cloture}} </td>
+           <td class="row-destinaires" ng-init="showDestinataires[validationDocumentaire.id] = false" ng-mouseenter="showDestinataires[validationDocumentaire.id] = true" ng-mouseleave="showDestinataires[validationDocumentaire.id] = false">
+
+            <span ng-show="validationDocumentaire.destinataires" class="badge badge-flat border-grey text-grey-600">{{validationDocumentaire.destinataires.length}}</span>
+            <ul class="popover-destinataires" ng-show="showDestinataires[validationDocumentaire.id]">
+                <li ng-repeat="destinataire in validationDocumentaire.destinataires">{{destinataire.prenom}} {{destinataire.nom}}</li>
+            </ul>
+
+        </td>
+        <td> <span class="label label-{{validationDocumentaire.stateClass}}">{{validationDocumentaire.stateLibelle}}</span> </td>
+        <td> <span class="label label-flat border-{{validationDocumentaire.open==1 ? 'success' : 'danger'}} text-{{validationDocumentaire.open==1 ? 'success' : 'danger'}}-600">{{validationDocumentaire.open==1 ? 'Oui' : 'Non'}}</span> </td>
+        <td class="text-center">
+            <ul class="icons-list">
+                <li class="dropdown">
+                    <a href="" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-menu9"></i>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="/fr/views/approval.html?id={{validationDocumentaire.id}}"><i class="icon-eye"></i> Voir en détail</a></li>
+                        <li><a href="/fr/views/approval-preview.html?id={{validationDocumentaire.id}}" class="fancybox fancybox.iframe" data-width="100%" data-height="100%"><i class="icon-eye"></i> Aperçu rapide</a></li>
+                        <li><a href="/ws/approvals.download.html?id={{validationDocumentaire.id}}"><i class="icon-download"></i> Télécharger</a></li>
                                         <!--
                                         <li><a href=""><i class="icon-thumbs-up2"></i> Valider</a></li>
                                         <li><a href=""><i class="icon-thumbs-down2"></i> Refuser</a></li>
                                         <li><a href=""><i class="icon-pencil7"></i> Demander des modifications</a></li>
-                                        -->
-                                    </ul>
-                                </li>
-                            </ul>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                    -->
+                                </ul>
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-            <div class="datatable-footer widget-footer">
+        <div class="datatable-footer widget-footer">
 
-                <div class="dataTables_paginate paging_simple_numbers pagination"></div>
-
+            <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
+                <li ng-repeat="page in pages track by $index">
+                    <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+                </li>
             </div>
+
+            <div class="dataTables_paginate paging_simple_numbers pagination"></div>
 
         </div>
 
     </div>
+
+</div>
 
 </div>
