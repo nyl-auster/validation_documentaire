@@ -24,7 +24,7 @@ upload de fichier et sélection des utilisation.
               <ng-include src="validationDocumentaireSettings.appPath + '/views/validationDocumentaireForm.upload.html'"></ng-include>
             </div>
 
-            <div class="col-sm-6">
+            <div class="col-sm-6">  
               <!-- inclusion des checkboxes permettant de sélectionner les utilisateurs -->
               <ng-include src="validationDocumentaireSettings.appPath + '/views/validationDocumentaireForm.usersSelection.html'"></ng-include>
             </div>
@@ -80,6 +80,7 @@ upload de fichier et sélection des utilisation.
 
             <input type="submit"
             value="ANNULER"
+            ng-hide="currentStep == 3"
             class="btn btn-danger btn-sm"
             ng-click="closeThisDialog()"
             >
