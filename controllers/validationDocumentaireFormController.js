@@ -11,7 +11,7 @@
     // Le formulaire est composé de plusieurs "pages", par défaut mettre sur la première page.
     $scope.currentStep = 1;
 
-    // mock users for now
+    // les utilisateurs à sélectionner comme destinataires
     userService.getAllUsersByGroup().then(function(users) {
       $scope.users = users;
     });
@@ -20,11 +20,16 @@
     // la table validationDocumentaire directement.
     $scope.validationDocumentaire = {};
 
+    // onglet actif par défaut pour la sélection d'utilisateurs.
     $scope.currentTab = 'entites';
+
+    // changer l'onglet actif de sélection d'utilisateurs.
     $scope.setCurrentTab = function(groupId) {
       $scope.currentTab = groupId;
     };
 
+    // trouver les utilisateurs qui ont été sélectionné au sein d'un groupe
+    // particulier (entité, service etc...)
     $scope.getSelectedUserByGroupId = function(groupeId) {
       var selectedUsers = [];
       angular.forEach($scope.users[groupeId].groups, function(group) {
@@ -37,15 +42,14 @@
       return selectedUsers;
     };
 
-    // si un user - valideur est déselectionner, déselectionner aussi
-    // la case valideur
+    // si un user - valideur est déselectionner, désélectionner aussi la case valideur
     $scope.ngChangeSelected = function(user) {
       if (!user.selected) {
         user.valideur = false;
       }
     };
 
-    // si la case valider est coché, cocher aussi 
+    // si la case valideur est cochée, cocher aussi 
     // automatiquement la case user correspondante.
     $scope.ngChangeValideur = function(user) {
       if (user.valideur) {
@@ -54,6 +58,7 @@
     };
 
     // Sélectionner / Dé-selectionner tous les utilisateurs d'un sous-groupe
+    // quand on clique sur le nom du sous-groupe
     $scope.selectAll = function(entite) {
       if (typeof this.checkAll == 'undefined') {
         this.checkAll = true;
@@ -67,14 +72,11 @@
       this.checkAll = !this.checkAll;
     };
 
-    /**
-     * récupérer tous les utilisateurs cochés depuis le formulaire dans les onglets entités, service et groupes de travail.
-     * @returns {Array}
-     */
+    // récupérer TOUS les utilisateurs qui ont été sélectionnées en tant que destintaataires.
     $scope.getAllSelectedUsers = function() {
       var selectedUsers = [];
       // juste un hack pour ne pas enregistrer deux fois le même utilisateur
-      // si un même utilisateur appartient à plusieurs groupes en même temps.
+      // dans le cas où un même utilisateur appartient à plusieurs groupes en même temps.
       var selectedUsersIds = [];
       // on itére sur les trois groupes possibles utilisateurs : service, entité, groupe de travail
       angular.forEach($scope.users, function(groupes) {
@@ -122,14 +124,14 @@
       $scope.files.splice(index, 1);
     };
 
-    // l'utilisateur actuellement connecté récupérer par webservice
+    // l'utilisateur actuellement connecté récupéré par webservice
     userService.getCurrentUser().then(function(currentUser) {
       $scope.currentUser = currentUser;
     });
 
 
-    // insérer la validation documentaire en base.
-    // retourne une promesse contenant le dernier id inséré
+    // Insérer la validation documentaire en base à partir des informations du formulaire
+    // retourne une promesse contenant le dernier id inséré en base.
     function validationDocumentaireInsert(userId) {
       var datas = {};
       datas.libelle = $scope.validationDocumentaire.libelle; // Ajout par Charlie le 23/12/2015
@@ -141,7 +143,7 @@
       return validationDocumentaireService.insert(datas);
     };
 
-    // Insérer tous les destinataires liés
+    // Insérer tous les destinataires liés à une validation documentaire
     // retourne une promesse
     function destinatairesInsert(selectedUsers, validationDocumentaireId) {
       return $q.all(selectedUsers.map(function(user) {
@@ -153,7 +155,7 @@
       }));
     };
 
-    // Envoyer le mail à tous les destinataires
+    // Envoyer le mail à tous les destinataires d'une validation documentaire
     // retourne une promesse
     function sendEmailToDestinaires(validationDocumentaireId) {
       var datas = {};
@@ -176,8 +178,10 @@
       });
     }
 
-    // Uploader les fichiers sur le serveur puis créer en base
-    // la validation documentaire correspondant si l'upload est réussi
+    /**
+     * La fonction clef qui permet de créer une nouvelle demande de validation documentaire
+     * une fois que le formulaire est rempli.
+     */
     $scope.enregistrerDemande = function() {
 
       var validationDocumentaireId = null;
@@ -219,7 +223,6 @@
 
         // en cas d'erreur de l'upload
         function(response) {
-          console.log(response);
           if (response.status > 0) {
             $scope.errorMsg = response.status + ': ' + response.data;
           }
@@ -235,7 +238,7 @@
 
       // 5 - REDIRECTION VERS LA PAGE DE CONFIRMATION
       .then(function(response) {
-        $scope.progressionEnregistrement += 'Succès.';
+        $scope.progressionEnregistrement += 'Succès de la création de la demande.';
         // rediriger vers la page de confirmation de la création de la validation documentaire
         $scope.goToStep(3);
         // On lance un évènement comme quoi nous venons d'insérer une nouvelle validation en base.
