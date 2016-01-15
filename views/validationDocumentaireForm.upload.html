@@ -19,39 +19,39 @@ libellé, description, priorité, date de clôture.
     <div class="dz-default dz-message">
         <span>Déposez vos fichiers ici <span>ou cliquez ici</span></span>
     </div>
-	</div>
+</div>
 
-	<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
-	<label class="validation-error-label" ng-show="uploadForm.$submitted && files.length == 0">Aucun fichier uploadé</label>
+<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+<label class="validation-error-label" ng-show="uploadForm.$submitted && files.length == 0">Aucun fichier uploadé</label>
 
-	<br>
-    <br>
+<br>
+<br>
 
-	<div ng-show="files.length" class="panel panel-flat">
+<div ng-show="files.length" class="panel panel-flat">
 
-        <table class="table table-xxs table-condensed">
-            <tbody>
-                <tr ng-repeat="file in files track by $index">
-                    <td  class="icon-extension-{{file.name | fileExtension}}">
-                        {{file.name}}
-                        <i class="fa-file"></i>
-                    </td>
-                    <td class="col-xs-1">
-                        <a class="glyphicon glyphicon-trash" ng-click="removeFileFromQueue($index)"></a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <table class="table table-xxs table-condensed">
+        <tbody>
+            <tr ng-repeat="file in files track by $index">
+                <td  class="">
+                <i class="{{file.name | fileAwesomeFontIconClass}}"></i>
+                    {{file.name}}
+                </td>
+                <td class="col-xs-1">
+                    <a class="glyphicon glyphicon-trash" ng-click="removeFileFromQueue($index)"></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     
-        <ul ng-if="invalidFiles" class="alert alert-danger">
-            <li class="sel-file" ng-repeat="f in invalidFiles">
-                <div>Invalid File: {{f.$error}} {{f.$errorParam}}, {{f.name}} - size: {{f.size}}B - type:
-                    {{f.type}}
-                </div>
-            </li>
-        </ul>
+    <ul ng-if="invalidFiles" class="alert alert-danger">
+        <li class="sel-file" ng-repeat="f in invalidFiles">
+            <div>Invalid File: {{f.$error}} {{f.$errorParam}}, {{f.name}} - size: {{f.size}}B - type:
+                {{f.type}}
+            </div>
+        </li>
+    </ul>
     
-	</div>
+</div>
 
 </div>
 
@@ -80,19 +80,20 @@ libellé, description, priorité, date de clôture.
                 is-open="status.opened"
                 min-date="minDate" max-date="maxDate"
                 datepicker-options="dateOptions"
-                date-disabled="disabled(date, mode)"
                 ng-required="true"
+                current-text="Aujourd'hui"
+                clear-text="Effacer"
                 close-text="Fermer"
                 />
                 <span class="input-group-btn">
-                   <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-               </span>
-           </div>
-       </div>
-   	</div>
-	<label class="validation-error-label" ng-show="uploadForm.$submitted && uploadForm.date_cloture.$error.required">Champ obligatoire</label>
+                 <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+             </span>
+         </div>
+     </div>
+ </div>
+ <label class="validation-error-label" ng-show="uploadForm.$submitted && uploadForm.date_cloture.$error.required">Champ obligatoire</label>
 
-	<div class="form-group form-group-xs">
+ <div class="form-group form-group-xs">
     <label class="col-lg-2 control-label">Priorité :</label>
     <div class="col-lg-10">    	
         <div class="row">

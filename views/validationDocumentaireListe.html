@@ -23,7 +23,7 @@
 
     <!-- BLOC DE RECHERCHE -->
     <div class="collapse in" id="searchToolbar">
-        <form method="GET" class="form-vertical"> 
+        <form class="form-vertical"> 
             <div class="panel panel-flat padding-bottom10 border-top-info">
                 <div class="panel-heading">
                     <h5 class="panel-title">Recherche {{texteArchive}}</h5>
@@ -65,24 +65,24 @@
                                     close-text="Fermer"
                                     />
                                     <span class="input-group-btn">
-                                     <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
-                                 </span>
-                             </div>
-                         </div><!-- fin date picker -->
+                                       <button type="button" class="btn btn-xs btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+                                   </span>
+                               </div>
+                           </div><!-- fin date picker -->
 
 
-                     </div>                    
-                     <div class="col-md-2">
+                       </div>                    
+                       <div class="col-md-2">
                         <div class="form-group form-group-xs">
                             <select id="etat" name="etat" class="form-control input-xs" ng-model="filtres.state_id">
-                             <option value="">Etat</option>
-                             <option value="{{etat.id}}" ng-repeat="etat in etats">{{etat.libelle}}</option>
-                         </select>
-                     </div>
-                 </div>
-                 <div class="col-md-2 pull-right">
+                               <option value="">Etat</option>
+                               <option value="{{etat.id}}" ng-repeat="etat in etats">{{etat.libelle}}</option>
+                           </select>
+                       </div>
+                   </div>
+                   <div class="col-md-2 pull-right">
                     <div class="form-group form-group-xs pull-right">
-                      <a ui-sref="validationDocumentaireListe({{filtres}})" class="btn btn-primary" ng-click="submitSearch()">
+                      <a class="btn btn-primary" ng-click="submitSearch()">
                         Filtrer 
                         <i class="icon-arrow-right14 position-right"></i></button>
                     </a>
@@ -107,38 +107,44 @@
 
         <div class="panel-heading">
 
-            <div class="dataTables_info">
+            <div class="dataTables_info col-xs-1">
               {{numberOfResults}} résultats
-          </div>   
+          	</div>   
 
-          <div class="pull-right margin-ss">
+          	<div class="pull-right margin-ss col-xs-1">
             <select 
             ng-change="changeResultsPerPage()"
             ng-model="resultsPerPageOptionsSelected" 
             ng-options="option as option.label for option in resultsPerPageOptions" 
             class="form-control nb_items_page">
-        </select>
-    </div>
+        	</select>
+    		</div>
+			
+            <div class="col-xs-10 text-center">
+                <ul ng-show="numberOfPages > 1" class="pagination pagination-separated pagination-xs">
+                    <li ui-sref-active="active" ui-sref="validationDocumentaireListe({ page: $index + 1})" ng-repeat="page in pages track by $index">
+                        <a rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+                    </li>
+                </ul>
+            </div>
 
-    <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
-        <li ng-repeat="page in pages track by $index">
-            <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
-        </li>
-    </div>
+		</div>
 
-</div>
+        <div ng-show="loading" class="text-center">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
 
-<table class="table datatable-responsive table-striped table-condensed table-hover table-xxs widget-table listing">
+<table dt-options="dtOptions" datatables class="table datatable-responsive table-striped table-condensed table-hover table-xxs widget-table listing" width="100%">
     <thead>
         <tr>
-            <th>Priorité</th>
+            <th class="visible-lg">Priorité</th>
             <th>Ticket</th>
-            <th>Date</th>
-            <th>Libellé</th>
-            <th>fichier(s)</th>
-            <th>Emis par</th>                    
-            <th>Date limite</th>
-            <th>Destinataire(s)</th>
+            <th class="hidden-xs">Date</th>
+            <th class="hidden-xs">Libellé</th>
+            <th class="visible-lg">fichier(s)</th>
+            <th class="hidden-xs">Emis par</th>                    
+            <th class="hidden-xs">Date limite</th>
+            <th class="visible-lg">Destinataire(s)</th>
             <th>Etat</th>
             <th>Ouvert</th>
             <th class="text-center">Actions</th>
@@ -146,14 +152,14 @@
     </thead>
     <tbody>
         <tr ng-repeat="validationDocumentaire in validationDocumentaires" ng-init="showDestinataires = [];"> 
-           <td> <span class="label label-{{validationDocumentaire.prioriteClass}}">{{validationDocumentaire.prioriteLibelle}}</span> </td>
-           <td> <a href="/fr/views/approval.html?id={{validationDocumentaire.id}}">{{validationDocumentaire.ticket}}</a> </td>
-           <td> {{validationDocumentaire.date_creation}} </td>
-           <td> {{validationDocumentaire.libelle}} </td>
-           <td>{{validationDocumentaire.files.length}} </td>
-           <td> {{validationDocumentaire.emetteur}} </td>
-           <td> {{validationDocumentaire.date_cloture}} </td>
-           <td class="row-destinaires" ng-init="showDestinataires[validationDocumentaire.id] = false" ng-mouseenter="showDestinataires[validationDocumentaire.id] = true" ng-mouseleave="showDestinataires[validationDocumentaire.id] = false">
+         <td class="visible-lg"> <span class="label label-{{validationDocumentaire.prioriteClass}}">{{validationDocumentaire.prioriteLibelle}}</span> </td>
+         <td> <a href="/fr/views/approval.html?id={{validationDocumentaire.id}}">{{validationDocumentaire.ticket}}</a> </td>
+         <td class="hidden-xs"> {{validationDocumentaire.date_creation}} </td>
+         <td class="hidden-xs"> {{validationDocumentaire.libelle}} </td>
+         <td class="visible-lg">{{validationDocumentaire.files.length}} </td>
+         <td class="hidden-xs"> {{validationDocumentaire.emetteur}} </td>
+         <td class="hidden-xs"> {{validationDocumentaire.date_cloture}} </td>
+         <td class="row-destinaires visible-lg" ng-init="showDestinataires[validationDocumentaire.id] = false" ng-mouseenter="showDestinataires[validationDocumentaire.id] = true" ng-mouseleave="showDestinataires[validationDocumentaire.id] = false">
 
             <span ng-show="validationDocumentaire.destinataires" class="badge badge-flat border-grey text-grey-600">{{validationDocumentaire.destinataires.length}}</span>
             <ul class="popover-destinataires" ng-show="showDestinataires[validationDocumentaire.id]">
@@ -188,14 +194,15 @@
         </table>
 
         <div class="datatable-footer widget-footer">
-
-            <div ng-show="numberOfPages > 1" class="dataTables_paginate paging_simple_numbers pagination">
-                <li ng-repeat="page in pages track by $index">
-                    <a ui-sref-active ui-sref="validationDocumentaireListe({ page: $index + 1})" rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
-                </li>
+			
+            <div class="col-xs-12 text-center">
+                <ul ng-show="numberOfPages > 1" class="pagination pagination-separated pagination-xs">
+                    <li ui-sref-active="active" ui-sref="validationDocumentaireListe({ page: $index + 1})" ng-repeat="page in pages track by $index">
+                        <a  rel="next" data-page="{{$index + 1}}" class="paginate_button">{{$index + 1}}</a>
+                    </li>
+                </ul>    
+                <!--div class="dataTables_paginate paging_simple_numbers pagination"></div-->
             </div>
-
-            <div class="dataTables_paginate paging_simple_numbers pagination"></div>
 
         </div>
 

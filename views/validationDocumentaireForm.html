@@ -90,7 +90,7 @@ upload de fichier et sélection des utilisation.
             value="ETAPE SUIVANTE"
             ng-show="currentStep == 1"
             class="btn btn-primary btn-sm pull-right"
-            ng-click="uploadForm.$valid && files.length > 0 && goToStep(2)"
+            ng-click="uploadForm.$valid && files.length > 0 && getAllSelectedUsers().length > 0 && goToStep(2)"
             >
             <!--ng-disabled="uploadForm.$invalid || files.length == 0"-->
 

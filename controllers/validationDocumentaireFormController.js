@@ -11,6 +11,8 @@
     // Le formulaire est composé de plusieurs "pages", par défaut mettre sur la première page.
     $scope.currentStep = 1;
 
+    $scope.savingInProgress = false;
+
     // les utilisateurs à sélectionner comme destinataires
     userService.getAllUsersByGroup().then(function(users) {
       $scope.users = users;
@@ -42,24 +44,53 @@
       return selectedUsers;
     };
 
-    // si un user - valideur est déselectionner, désélectionner aussi la case valideur
-    $scope.ngChangeSelected = function(user) {
-      if (!user.selected) {
-        user.valideur = false;
+
+    $scope.ngChangeSelected = function(changedUser) {
+      // si un user - valideur est déselectionner, désélectionner aussi la case valideur
+      if (!changedUser.selected) {
+        changedUser.valideur = false;
       }
+
+      // un utilisateur peut se trouver dans d'autres groupes, on synchronise
+      angular.forEach($scope.users, function(groupes) {
+        angular.forEach(groupes.groups, function(groupe) {
+          angular.forEach(groupe.users, function(user) {
+            if (user.id == changedUser.id) {
+              user.selected = changedUser.selected;
+              user.valideur = changedUser.valideur;
+            }
+          });
+        });
+      });
+
+
     };
 
-    // si la case valideur est cochée, cocher aussi 
-    // automatiquement la case user correspondante.
-    $scope.ngChangeValideur = function(user) {
-      if (user.valideur) {
-        user.selected = true;
+    $scope.ngChangeValideur = function(changedUser) {
+
+      // si la case valideur est cochée, cocher aussi 
+      // automatiquement la case user correspondante.
+      if (changedUser.valideur) {
+        changedUser.selected = true;
       }
+
+      // un utilisateur peut se trouver dans d'autres groupes, on synchronise
+      angular.forEach($scope.users, function(groupes) {
+        angular.forEach(groupes.groups, function(groupe) {
+          angular.forEach(groupe.users, function(user) {
+            if (user.id == changedUser.id) {
+              user.selected = changedUser.selected;
+              user.valideur = changedUser.valideur;
+            }
+          });
+        });
+      });
+
     };
 
-    // Sélectionner / Dé-selectionner tous les utilisateurs d'un sous-groupe
-    // quand on clique sur le nom du sous-groupe
     $scope.selectAll = function(entite) {
+      // Sélectionner / Dé-selectionner tous les utilisateurs d'un sous-groupe
+      // quand on clique sur le nom du sous-groupe
       if (typeof this.checkAll == 'undefined') {
         this.checkAll = true;
       }
@@ -68,6 +99,10 @@
         if (!this.checkAll) {
           value.valideur = this.checkAll;
         }
+        // synchroniser aves des users identiques
+        // dans d'autes groupes.
+        $scope.ngChangeSelected(value);
+        $scope.ngChangeValideur(value);
       }, this);
       this.checkAll = !this.checkAll;
     };
@@ -78,6 +113,7 @@
       // juste un hack pour ne pas enregistrer deux fois le même utilisateur
       // dans le cas où un même utilisateur appartient à plusieurs groupes en même temps.
       var selectedUsersIds = [];
+
       // on itére sur les trois groupes possibles utilisateurs : service, entité, groupe de travail
       angular.forEach($scope.users, function(groupes) {
         // chaque groupe contient plusieurs sous=groupe (service 1, service 2 etc...)
@@ -92,6 +128,7 @@
 
         });
       });
+
       return selectedUsers;
     };
 
@@ -187,6 +224,7 @@
       var validationDocumentaireId = null;
 
       $scope.progressionEnregistrement = '';
+      $scope.savingInProgress = true;
 
       // récupérer l'id de l'utilisateur courant
       userService.getCurrentUserId()
@@ -239,6 +277,7 @@
       // 5 - REDIRECTION VERS LA PAGE DE CONFIRMATION
       .then(function(response) {
         $scope.progressionEnregistrement += 'Succès de la création de la demande.';
+        $scope.savingInProgress = false;
         // rediriger vers la page de confirmation de la création de la validation documentaire
         $scope.goToStep(3);
         // On lance un évènement comme quoi nous venons d'insérer une nouvelle validation en base.

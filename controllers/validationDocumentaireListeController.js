@@ -10,6 +10,8 @@
     // contiendra la liste des validation Documentaires
     $scope.validationDocumentaires = [];
 
+    $scope.loading = false;
+
     // options pour choisir le nombre de résultats par page:
     $scope.resultsPerPageOptions = [{
       value: 10,
@@ -33,18 +35,14 @@
       $scope.resultsPerPageOptionsSelected = $scope.resultsPerPageOptions[2];
     }
 
-
-    // on va chercher la liste des validation documentaires pour le premier affichage
-    // en utilisant les arguments en provenant de l'url / de l'état 
-    // @see appRouter.js
-
-    // set date_cloture as a string for sql query
-    // le datePicker nus envoie pour sa part un objet date.
-
     if ($stateParams.archived == 1) {
       $scope.texteArchive = "dans les archives";
     }
 
+
+    // on va chercher la liste des validation documentaires pour le premier affichage
+    // en utilisant les arguments en provenant de l'url / de l'état 
+    // @see appRouter.js
     loadResults($stateParams);
 
     // On souhaite rafraichir la liste des résultats une fois une nouvelle demande créee.
@@ -56,26 +54,35 @@
     });
 
     // met à jour la liste de résultats
-    function loadResults(queryParams) {
+    function loadResults(params) {
 
-      var queryParams = typeof queryParams !== 'undefined' ? queryParams : {};
+      // on utilise angular.copy car params étant un objet, il sera passé par référence sinon.
+      var queryParams = typeof params !== 'undefined' ? angular.copy(params) : {};
+
+      // modifier le format de date en provenance de l'url
+      if (typeof queryParams.date_cloture !== "undefined" && queryParams.date_cloture !== null) {
+        queryParams.date_cloture = $filter('date')(new Date(queryParams.date_cloture), "yyyy-MM-dd");
+      }
 
       var queryCountParams = queryParams;
 
       if (typeof queryParams.limit === 'undefined') {
         queryParams.limit = $scope.resultsPerPageOptionsSelected.value;
       }
-      // on créer les paramètres from et limit pour la requete sql du webservice
+      // on créer les paramètres from pour la requete sql
       queryParams.from = (queryParams.page * queryParams.limit) - queryParams.limit;
 
       // on demande au webservice de nous renvoyer le résultat correspondant au filtres mais sans le from et le limit
-      validationDocumentaireService.getAll(queryParams).then(function(validationDocumentaires) {
+      $scope.loading = true;
+      validationDocumentaireService.getAll(queryParams)
+
+      .then(function(validationDocumentaires) {
+
         // mise à jour de la liste avec les résulats.
         $scope.validationDocumentaires = validationDocumentaires;
 
         // par défault les filtres de recherche ont la valeur de la recherche précédente.
         $scope.filtres = queryParams;
-
         if (typeof queryParams.date_cloture !== "undefined") {
           $scope.filtres.date_cloture = new Date(queryParams.date_cloture);
         }
@@ -83,12 +90,15 @@
         var selectedOption = $filter('filter')($scope.resultsPerPageOptions, {
           value: queryParams.limit
         })[0];
-
         $scope.resultsPerPageOptionsSelected = selectedOption;
 
         // sauvegarder le nombre de résultats par page choisi par l'utilisateur
         localStorage.setItem('validationDocumentaireListeNumberItemsPerPage', JSON.stringify(selectedOption, null, 2));
 
+      })
+
+      .finally(function() {
+        $scope.loading = false;
       });
 
       // compter le nombre de résultat pour a requête demandée.
@@ -109,19 +119,11 @@
     // appelée lorsqu'on clique sur le bouton submit du moteur de recherche 
     // recharge ce controlleur en mettant à jour les paramètres de l'url.
     $scope.submitSearch = function() {
-
       var queryParams = $scope.filtres;
-
-      // set date_cloture as a string for sql query
-      // le datePicker nus envoie pour sa part un objet date.
-      if (typeof queryParams.date_cloture !== "undefined" && queryParams.date_cloture !== null) {
-        queryParams.date_cloture = $filter('date')(new Date(queryParams.date_cloture), "yyyy-MM-dd");
-      }
       queryParams.page = 1;
-
       // on actualise notre état et les paramètres de l'url pour mettre à jour la liste.
       $state.go('validationDocumentaireListe', queryParams, {
-        location: "replace"
+        location: true
       });
 
     };

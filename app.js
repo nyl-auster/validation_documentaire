@@ -9,7 +9,12 @@
     "use strict";
 
      // création du module et de ses dépendances.
-     var module = angular.module('validationDocumentaire', ['ui.router', 'ngFileUpload', 'ngDialog', 'ui.bootstrap']);
+     var module = angular.module('validationDocumentaire', [
+      'ui.router', 
+      'ngFileUpload', 
+      'ngDialog', 
+      'ui.bootstrap'
+      ]);
 
      module.run(['$rootScope', 'validationDocumentaireSettings', function($rootScope, validationDocumentaireSettings) {
 
