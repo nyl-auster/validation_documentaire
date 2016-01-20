@@ -7,7 +7,7 @@
 
   angular.module('validationDocumentaire').controller("validationDocumentaireListeController", ['$filter', '$state', '$stateParams', '$q', '$timeout', 'validationDocumentaireService', '$scope', '$rootScope', 'validationDocumentaireSettings', function($filter, $state, $stateParams, $q, $timeout, validationDocumentaireService, $scope, $rootScope, validationDocumentaireSettings) {
 
-    // contiendra la liste des validation Documentaires
+    // contiendra la liste des validations Documentaires
     $scope.validationDocumentaires = [];
 
     $scope.loading = false;

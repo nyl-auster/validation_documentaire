@@ -103,7 +103,7 @@
 
 <div ng-show="validationDocumentaires">
 
-    <div class="panel panel-flat widget widget-table">
+    <div class="panel no-border panel-flat widget widget-table">
 
         <div class="panel-heading">
 
@@ -146,7 +146,7 @@
             <th class="hidden-xs">Date limite</th>
             <th class="visible-lg">Destinataire(s)</th>
             <th>Etat</th>
-            <th>Ouvert</th>
+            <th>Statut</th>
             <th class="text-center">Actions</th>
         </tr>
     </thead>
@@ -168,7 +168,7 @@
 
         </td>
         <td> <span class="label label-{{validationDocumentaire.stateClass}}">{{validationDocumentaire.stateLibelle}}</span> </td>
-        <td> <span class="label label-flat border-{{validationDocumentaire.open==1 ? 'success' : 'danger'}} text-{{validationDocumentaire.open==1 ? 'success' : 'danger'}}-600">{{validationDocumentaire.open==1 ? 'Oui' : 'Non'}}</span> </td>
+        <td> <span class="label label-flat border-{{validationDocumentaire.open==1 ? 'success' : 'danger'}} text-{{validationDocumentaire.open==1 ? 'success' : 'danger'}}-600">{{validationDocumentaire.open==1 ? 'Ouvert' : validationDocumentaire.archived==1 ? 'Archivé' : 'Fermé'}}</span> </td>
         <td class="text-center">
             <ul class="icons-list">
                 <li class="dropdown">

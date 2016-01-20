@@ -206,6 +206,7 @@
     function uploadFiles(files, directory) {
       return Upload.upload({
         url: validationDocumentaireSettings.webservicesBaseUrl + 'upload',
+        disableProgress: false,
         data: {
           files: files
         },
@@ -254,6 +255,7 @@
 
         // en cas de succès de l'upload des fichiers
         function(response) {
+          console.log(response);
           $scope.progressionEnregistrement += 'Fichiers uploadés avec succès...';
           $scope.progressionEnregistrement += 'Envoi des emails de notifications...';
           return sendEmailToDestinaires(validationDocumentaireId);
@@ -268,6 +270,7 @@
 
         // notification de l'upload : affichage de la barre de progression d'upload des fichiers
         function(evt) {
+          console.log(evt);
           $scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
           $scope.progressionEnregistrement += $scope.progress;
         }
