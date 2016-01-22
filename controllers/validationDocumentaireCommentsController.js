@@ -6,14 +6,16 @@
   "use strict";
 
   angular.module('validationDocumentaire').controller("validationDocumentaireCommentsController", ['ngDialog', '$http', '$location', '$rootScope', '$scope', 'userService', 'validationDocumentaireSettings', 'validationDocumentaireService', function(ngDialog, $http, $location, $rootScope, $scope, userService, validationDocumentaireSettings, validationDocumentaireService) {
-
+	
     // passera à true quand un commentaire sera en cours d'enregistrement
     // pour qu'on ne puisse pas cliquer sur le bouton de soumission à ce
     // moment là.
     $scope.insertingComment = false;
 
     // affiche l'erreur de commentaire vide si on a cliqué sur refusé
-    $scope.commentIsEmptyErrorRefuse = false;
+    $scope.commentIsEmptyRefusError = false;
+    $scope.commentIsEmptyValideError = false;
+    $scope.commentIsEmptyError = false;
 
     // object commentaire qui sera envoyé aux webservices
     $scope.comment = {};
@@ -22,16 +24,23 @@
     $scope.comment.poste_le = '';
     $scope.comment.id_validation_documentaire = $scope.validationDocumentaireId = $rootScope.getQueryParam('id');
 
-    // POUR CHARLIE ! :)
-    $http.get('/ws/approvals.webservices.php?service=getInfosAfterComment&id=' + $rootScope.getQueryParam('id'))
-      .then(function(response) {
+    $scope.refreshInfos = function() {
+      $http.get('/ws/approvals.webservices.php?service=getInfosAfterComment&id=' + $rootScope.getQueryParam('id'))
+        .then(function(response) {
+          $scope.isOpen = response.data.result.isOpen;
+          $scope.statut = response.data.result.statut;
+          $scope.nbValidations = response.data.result.nbValidations;
+          $scope.tauxValidation = response.data.result.tauxValidation;
+          $scope.autoriseValidationCommentaire = response.data.result.autoriseValidationCommentaire;
+          $scope.autoriseRefusCommentaire = response.data.result.autoriseRefusCommentaire;
+          $scope.autoriseCommentaires = response.data.result.autoriseCommentaires;
+          $scope.destinataires = response.data.result.destinataires;
+        });
+    };
 
-        $scope.statut = response.data.result.statut;
-        $scope.nbValidations = response.data.result.nbValidations;
-        $scope.tauxValidation = response.data.result.tauxValidation;
-        console.log(response);
+    $scope.refreshInfos();
 
-      });
+
 
     // récupérer les information de l'utilisateur courant
     userService.getCurrentUser().then(function(user) {
@@ -66,13 +75,31 @@
 
     $scope.commentValidateAndInsert = function(validationDocumentaireEtat) {
 
-      if (validationDocumentaireEtat == 'refuse') {
-        if ($scope.commentIsEmpty()) {
-          $scope.commentIsEmptyErrorRefuse = true;
-          return false;
-        } else {
-          $scope.commentIsEmptyErrorRefuse = false;
-        }
+      if ($scope.commentIsEmpty() && validationDocumentaireEtat == 'refuse') {
+        $scope.commentIsEmptyRefusError = true;
+        $scope.commentIsEmptyValideError = false;
+        $scope.commentIsEmptyError = false;
+        return false;
+      } else {
+        $scope.commentIsEmptyRefusError = false;
+      }
+
+      if ($scope.commentIsEmpty() && validationDocumentaireEtat == 'valide') {
+        $scope.commentIsEmptyRefusError = false;
+        $scope.commentIsEmptyError = false;
+        $scope.commentIsEmptyValideError = true;
+        return false;
+      } else {
+        $scope.commentIsEmptyValideError = false;
+      }
+
+      if ($scope.commentIsEmpty() && validationDocumentaireEtat == '') {
+        $scope.commentIsEmptyRefusError = false;
+        $scope.commentIsEmptyError = true
+        $scope.commentIsEmptyValideError = false;
+        return false;
+      } else {
+        $scope.commentIsEmptyError = false;
       }
 
       if (validationDocumentaireEtat == 'refuse') {
@@ -85,6 +112,11 @@
         $scope.openConfirmValide(validationDocumentaireEtat).then(function() {
           $scope.commentInsert(validationDocumentaireEtat);
         })
+      }
+       
+      // pas de confirmation pour le moment pour un commentaire simple.
+      if (validationDocumentaireEtat == '') {
+        $scope.commentInsert(validationDocumentaireEtat);
       }
 
     };
@@ -102,22 +134,14 @@
         return validationDocumentaireService.getComments($scope.validationDocumentaireId)
       })
 
-      // mettre à jour la liste des commentaires affichés
       .then(function(comments) {
-
+        // puis mettre à jour la liste des commentaires affichés
         $scope.comments = comments;
         // on indique que l'insertion du nouveau commentaire est terminée
         $scope.insertingComment = false;
 
         // pour Charlie : on met à nouveau à jour le status 
-        $http.get('/ws/approvals.webservices.php?service=getInfosAfterComment&id=' + $rootScope.getQueryParam('id'))
-          .then(function(response) {
-            console.log(response);
-            $scope.statut = response.data.result.statut;
-            $scope.nbValidations = response.data.result.nbValidations;
-            $scope.tauxValidation = response.data.result.tauxValidation;
-
-          });
+        $scope.refreshInfos();
 
       });
 

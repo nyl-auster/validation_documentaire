@@ -1,7 +1,15 @@
 (function() {
 
   "use strict";
-
+	
+	//angular filter pour la prise en compte des retours à la ligne
+	angular.module('validationDocumentaire').filter('nl2br', function($filter) {
+		return function(data) {
+		   if (!data) return data;
+		   return data.replace(/\n\r?/g, '<br />');
+		 };
+	});
+	
   // affiche l'extension du fichier
   angular.module('validationDocumentaire').filter('fileExtension', function($filter) {
     return function(filename) {

@@ -32,6 +32,12 @@
       templateUrl: validationDocumentaireSettings.appPath + "/views/validationDocumentaireForm.html"
     });
 
+        // route pour afficher le formulaire demande en dehors de la popup
+    $stateProvider.state('validationDocumentaireUpload', {
+      url: '/upload',
+      templateUrl: validationDocumentaireSettings.appPath + "/views/validationDocumentaireUpload.html"
+    });
+
 
   }]);
 
