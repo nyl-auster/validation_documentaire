@@ -206,7 +206,6 @@
     function uploadFiles(files, directory) {
       return Upload.upload({
         url: validationDocumentaireSettings.webservicesBaseUrl + 'upload',
-        disableProgress: false,
         data: {
           files: files
         },
@@ -224,62 +223,50 @@
 
       var validationDocumentaireId = null;
 
-      $scope.progressionEnregistrement = '';
       $scope.savingInProgress = true;
 
-      // récupérer l'id de l'utilisateur courant
-      userService.getCurrentUserId()
-
       // 1 - INSERTION VALIDATION DOCUMENTAIRE EN BASE
-      .then(function(userId) {
+      var promise = userService.getCurrentUserId().then(function(userId) {
         $scope.progressionEnregistrement = 'Insertion validation documentaire en base...';
         return validationDocumentaireInsert(userId);
-      })
+      });
 
-      // 2 - INSERTION DES DESTINATAIRES EN BASE
-      .then(function(lastValidationDocumentaireId) {
-        $scope.progressionEnregistrement += 'Inserée avec id ' + lastValidationDocumentaireId + '. Insertion des destinataires en base ...';
-        // enregistrer l'id de validation pour s'en resservir plus bas.
-        validationDocumentaireId = lastValidationDocumentaireId
-        return destinatairesInsert($scope.getAllSelectedUsers(), validationDocumentaireId);
-      })
-
-      // 3 - UPLOAD DES FICHIERS SUR LE SERVEUR
-      .then(function(response) {
+      // 2 - UPLOAD DES FICHIERS SUR LE SERVEUR
+      promise = promise.then(function(response) {
         $scope.progressionEnregistrement += 'upload des fichiers en cours...';
         return uploadFiles($scope.files, validationDocumentaireId);
-      })
+      });
 
-      // 4 - ENVOI DES EMAILS AUX DESTINATAIRES
-      .then(
+      promise = promise.then(
 
-        // en cas de succès de l'upload des fichiers
+        // 3a - EN CAS DE SUCCESS DE L'UPLOAD : INSERTION DES DESTINATAIRES EN BASE
         function(response) {
-          console.log(response);
-          $scope.progressionEnregistrement += 'Fichiers uploadés avec succès...';
-          $scope.progressionEnregistrement += 'Envoi des emails de notifications...';
-          return sendEmailToDestinaires(validationDocumentaireId);
+          // enregistrer l'id de validation pour s'en resservir plus bas.
+          validationDocumentaireId = lastValidationDocumentaireId
+          return destinatairesInsert($scope.getAllSelectedUsers(), validationDocumentaireId);
         },
 
-        // en cas d'erreur de l'upload
+        // 3b - bis - EN CAS D'ERREUR DE L'UPLOAD : SUPPRIMER LA DEMANDE, AFFICHER LES ERREURS
         function(response) {
           if (response.status > 0) {
             $scope.errorMsg = response.status + ': ' + response.data;
           }
         },
 
-        // notification de l'upload : affichage de la barre de progression d'upload des fichiers
+        // 3c - AU COURS DE L'UPLOAD : Mettre à jour la barre de progression de l'upload.
         function(evt) {
-          console.log(evt);
           $scope.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-          $scope.progressionEnregistrement += $scope.progress;
         }
 
-      )
+      );
+
+      // 4 - ENVOYER LES MAILS DE NOTIFICATIONS AUX DESTINATAIRES
+      promise = promise.then(function(response) {
+        return sendEmailToDestinaires(validationDocumentaireId);
+      });
 
       // 5 - REDIRECTION VERS LA PAGE DE CONFIRMATION
-      .then(function(response) {
-        $scope.progressionEnregistrement += 'Succès de la création de la demande.';
+      promise = promise.then(function(response) {
         $scope.savingInProgress = false;
         // rediriger vers la page de confirmation de la création de la validation documentaire
         $scope.goToStep(3);
