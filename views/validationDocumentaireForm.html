@@ -83,6 +83,7 @@ upload de fichier et sélection des utilisation.
             ng-hide="currentStep == 3"
             class="btn btn-danger btn-sm"
             ng-click="closeThisDialog()"
+            ng-disabled="progress > 0"
             >
 
             <!-- si le formulaire est valide et que des fichiers ont été sélectionné, se rendre en page 2 -->
@@ -98,6 +99,7 @@ upload de fichier et sélection des utilisation.
             ng-show="currentStep == 2"
             class="btn btn-slate btn-sm"
             ng-click="goToStep(1)"
+            ng-disabled="progress > 0"
             >
             RETOUR
           	</button>

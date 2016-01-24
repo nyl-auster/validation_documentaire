@@ -31,6 +31,17 @@
     };
 
     /**
+     * Supprimer une validation Documentaire
+     */
+    factory.remove = function(id) {
+      var url = validationDocumentaireSettings.webservicesBaseUrl + 'validationDocumentaireDelete';
+      return $http.post(url, {id: id}).then(function(response) {
+        console.log(response);
+        return response.data.result;
+      });
+    };
+
+    /**
      * Insérer une nouvelle validation documentaire en base de données
      * Renvoie le dernier id inséré en base de donnée
      */

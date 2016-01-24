@@ -70,8 +70,8 @@ Inclus par le fichier validationDocumentaireForm.html
 
      </div>
 
-     <div>
-         {{progressionEnregistrement}}
+     <div ng-show="uploadErrorMessage" class="text-danger">
+         {{uploadErrorMessage}}
      </div>
 
      <div class="progress">

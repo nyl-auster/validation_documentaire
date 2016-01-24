@@ -25,6 +25,8 @@
     // onglet actif par défaut pour la sélection d'utilisateurs.
     $scope.currentTab = 'entites';
 
+    $scope.getDatetime = new Date();
+
     // changer l'onglet actif de sélection d'utilisateurs.
     $scope.setCurrentTab = function(groupId) {
       $scope.currentTab = groupId;
@@ -107,7 +109,7 @@
       this.checkAll = !this.checkAll;
     };
 
-    // récupérer TOUS les utilisateurs qui ont été sélectionnées en tant que destintaataires.
+    // récupérer TOUS les utilisateurs qui ont été sélectionnées en tant que destinataires.
     $scope.getAllSelectedUsers = function() {
       var selectedUsers = [];
       // juste un hack pour ne pas enregistrer deux fois le même utilisateur
@@ -116,6 +118,7 @@
 
       // on itére sur les trois groupes possibles utilisateurs : service, entité, groupe de travail
       angular.forEach($scope.users, function(groupes) {
+        
         // chaque groupe contient plusieurs sous=groupe (service 1, service 2 etc...)
         // on itère les sous-groupes pour trouver les utilisateur dans chaque sous-groupe
         angular.forEach(groupes.groups, function(groupe) {
@@ -225,15 +228,17 @@
 
       $scope.savingInProgress = true;
 
+      // début de la chaine de promesses :
+
       // 1 - INSERTION VALIDATION DOCUMENTAIRE EN BASE
       var promise = userService.getCurrentUserId().then(function(userId) {
-        $scope.progressionEnregistrement = 'Insertion validation documentaire en base...';
         return validationDocumentaireInsert(userId);
       });
 
       // 2 - UPLOAD DES FICHIERS SUR LE SERVEUR
-      promise = promise.then(function(response) {
-        $scope.progressionEnregistrement += 'upload des fichiers en cours...';
+      promise = promise.then(function(insertedValidationDocumentaireId) {
+        // enregistrer l'id de validation pour s'en resservir plus tard.
+        validationDocumentaireId = insertedValidationDocumentaireId;
         return uploadFiles($scope.files, validationDocumentaireId);
       });
 
@@ -241,16 +246,23 @@
 
         // 3a - EN CAS DE SUCCESS DE L'UPLOAD : INSERTION DES DESTINATAIRES EN BASE
         function(response) {
-          // enregistrer l'id de validation pour s'en resservir plus bas.
-          validationDocumentaireId = lastValidationDocumentaireId
           return destinatairesInsert($scope.getAllSelectedUsers(), validationDocumentaireId);
         },
 
-        // 3b - bis - EN CAS D'ERREUR DE L'UPLOAD : SUPPRIMER LA DEMANDE, AFFICHER LES ERREURS
+        // 3b - EN CAS D'ERREUR DE L'UPLOAD : AFFICHER LES ERREURS ET SUPPRIMER LA DEMANDE.
         function(response) {
-          if (response.status > 0) {
-            $scope.errorMsg = response.status + ': ' + response.data;
+          $scope.savingInProgress = false;
+          $scope.progress = 0;
+          $scope.uploadErrorMessage = response.status + ': ' + response.statusText;
+          if (typeof response.data.errors !== "undefined") {
+            $scope.uploadErrorMessage += " - " + response.data.errors.join(',');
           }
+
+          // supprimer la demande correspondante et son dossier du serveur.
+          validationDocumentaireService.remove(validationDocumentaireId);
+
+          // On s'arrête là et on n'exécute pas les promesses suivantes.
+          throw new Error("Erreur upload de fichier");
         },
 
         // 3c - AU COURS DE L'UPLOAD : Mettre à jour la barre de progression de l'upload.
@@ -260,6 +272,7 @@
 
       );
 
+      // SI tout s'est bien passé lors de l'upload des fichiers
       // 4 - ENVOYER LES MAILS DE NOTIFICATIONS AUX DESTINATAIRES
       promise = promise.then(function(response) {
         return sendEmailToDestinaires(validationDocumentaireId);
@@ -275,8 +288,6 @@
       });
 
     };
-
-    $scope.getDatetime = new Date();
 
   }]);
 
