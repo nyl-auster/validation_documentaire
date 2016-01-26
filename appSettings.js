@@ -1,5 +1,6 @@
 /**
- * Création de settings pour notre application
+ * Création de settings pour notre application angular.
+ * Ces settings seront ensuite récupérable depuis nos controllers.
  */
 
 // dans une fonction auto-invoquée pour ne pas polluer le scope global
@@ -10,8 +11,7 @@
     // déclaration des settings lié à notre module.
     angular.module('validationDocumentaire').constant('validationDocumentaireSettings', {
 
-        // pour construire les urls de nos webservices : voir 
-        // action.validationDocumentaireWebservices.php.
+        // pour construire les urls de nos webservices : voir approvals.webservices.php.
         // example d'utilisation :
         // $http.get(validationDocumentaireSettings.webservicesBaseUrl + 'validationDocumentaireGetAll')
         webservicesBaseUrl: "/ws/approvals.webservices.html?service=",

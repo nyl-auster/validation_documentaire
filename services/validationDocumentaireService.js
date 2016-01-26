@@ -1,6 +1,7 @@
 /**
  * Service pour obtenir des informations à propos des validations
- * documentaires depuis la base de données. Communication avec les webservices php.
+ * documentaires depuis la base de données. Communication avec les webservices php, via
+ * le service angular core $http.
  */
 (function() {
 

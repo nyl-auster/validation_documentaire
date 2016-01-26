@@ -1,5 +1,5 @@
 /**
- * Le controller principale de l'application, appelé dans vue.php
+ * Le controller pour les commentaires sur les fiches validation.
  */
 (function() {
 

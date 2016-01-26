@@ -1,5 +1,6 @@
 /**
- * Le controller principale de l'application, appelé dans vue.php
+ * Le controller parent de l'application. utilisé pour afficher la fenêtre de création
+ * de demande de validation documentaire.
  */
 (function() {
 
@@ -7,7 +8,9 @@
 
   angular.module('validationDocumentaire').controller("validationDocumentaireRootController", ['validationDocumentaireService', '$rootScope', '$scope', 'ngDialog', 'validationDocumentaireSettings', function(validationDocumentaireService, $rootScope, $scope, ngDialog, validationDocumentaireSettings) {
 
-    // get a param from url
+    // get a "php" param from url.  Astuce qui permet de récupérer l'id d'une demande
+    // depuis l'url sur les pages.php en appelant  $rootScope.getQueryParam('id').
+    // Un peu l'équivalent de  $_GET['id'] en php.
     $rootScope.getQueryParam = function(variable) {
       var query = window.location.search.substring(1);
       var vars = query.split("&");

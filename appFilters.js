@@ -1,3 +1,6 @@
+/**
+ * Filters custom angular.
+ */
 (function() {
 
   "use strict";
@@ -60,22 +63,3 @@
 
 
 })();
-
-/*
-
-Icone générique qui sera utilisée lorsque le type n’est pas reconnu : fa fa-file-o
-Pour les types identifiés :
-Pour les ZIP :             fa fa-file-archive-o
-Pour les fichiers AUDIO :         fa fa-file-audio-o
-Pour les fichiers de type CODE (html…) :    fa fa-file-code-o
-Pour les fichiers EXCEL :         fa fa-file-excel-o
-Pour les fichiers de type IMAGE (png, jpg, jpeg, gif…) :  fa fa-file-image-o
-Pour les fichiers de type VIDEO (.mov, .avi, .mp4…) :   fa fa-file-video-o
-Pour les fichiers PDF :           fa fa-file-pdf-o
-Pour les fichiers POWERPOINT :      fa fa-file-powerpoint-o
-Pour les fichiers de type TEXT (.txt…) :      fa fa-file-text-o
-Pour les fichiers WORD :        fa fa-file-word-o
-Pour les fichiers ZIP :           fa fa-file-zip-o
-
-Exemple d’utilisation : <i class="fa fa-file-o"></i>
-*/
