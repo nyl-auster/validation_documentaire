@@ -118,7 +118,7 @@
 
       // on itére sur les trois groupes possibles utilisateurs : service, entité, groupe de travail
       angular.forEach($scope.users, function(groupes) {
-        
+
         // chaque groupe contient plusieurs sous=groupe (service 1, service 2 etc...)
         // on itère les sous-groupes pour trouver les utilisateur dans chaque sous-groupe
         angular.forEach(groupes.groups, function(groupe) {
@@ -257,10 +257,8 @@
           if (typeof response.data.errors !== "undefined") {
             $scope.uploadErrorMessage += " - " + response.data.errors.join(',');
           }
-
           // supprimer la demande correspondante et son dossier du serveur.
           validationDocumentaireService.remove(validationDocumentaireId);
-
           // On s'arrête là et on n'exécute pas les promesses suivantes.
           throw new Error("Erreur upload de fichier");
         },
